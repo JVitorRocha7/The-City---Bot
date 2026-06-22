@@ -108,16 +108,19 @@ class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
         )
 
         embed.set_author(name=f"Rolagem de {message.author.display_name}", icon_url=message.author.display_avatar.url)
-        embed.add_field(name="Resultado Total", value=f"`# {total_final} #`", inline=False)
+        embed = discord.Embed(
+            description=f"# {total_final}",
+            color=COR_DOURADA
+        )
         detalhes_str = "\n".join(lista_detalhes)
 
-        modificadores = re.findall(r"(?<!d)([+-]\d+)(?!d)", msg_limpa)
+        modificadores = re.findall(r"(?<!d)([+-]\d+)(?!\d*d)", msg_limpa)
         if modificadores:
-            detalhes_str += f"\n**Modificadores**: `{modificadores[0]}`"
+            lista_detalhes.append(f"**Modificadores**: `{', '.join(modificadores)}`")
 
         embed.add_field(name="Detalhes da Expressão", value=detalhes_str, inline=False)
 
-        embed.set_footer(text=f"Formula: {msg}")
+        embed.set_author(text=f"Formula: {msg}")
 
         await message.reply(embed=embed)
 
