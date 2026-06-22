@@ -1,8 +1,3 @@
-from discord.ext import commands
-
-async def setup(bot):
-    pass
-
 import discord
 import random
 import re           # biblioteca para expressões regulares (detectar padrões de texto)
@@ -29,11 +24,11 @@ class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
         msg = message.content.strip().lower()
 
         # Configs
-        COR_DOURADA = discord.color.from_str("#D4AF37")
+        COR_DOURADA = discord.Color.from_str("#D4AF37")
 
         # Repetição
         if "#" in msg:
-            partes = msg.splt("#", 1)
+            partes = msg.split("#", 1)
             if not partes[0].isdigit():
                 return
 
@@ -66,17 +61,17 @@ class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
                 # embed de repetição
                 embed = discord.Embed(
                     title="Rolagem",
-                    description=f"Resultados para **{msg}**"
+                    description=f"Resultados para **{msg}**",
                     color=COR_DOURADA
                 )
                 embed.add_field(name="Resultados", value="\n".join(linhas_resposta), inline=False)
-                embed.set_footer(text=f"Solicitado por {message.author.display_name}, icon_url=message.author.display_avatar.url")
+                embed.set_footer(text=f"Solicitado por {message.author.display_name}", icon_url=message.author.display_avatar.url)
 
                 await message.reply(embed=embed)
             return
 
         # Dados adjacentes
-        msg_limpa = msg.replace(" ", " ")
+        msg_limpa = msg.replace(" ", "")
 
         if not re.fullmatch(r"[\dd+\-]+", msg_limpa) or "d" not in msg_limpa:
             return
@@ -105,14 +100,14 @@ class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
 
         try:
             total_final = eval(expressao_matematica)
-        except Execption:
+        except Exception:
             return
 
         embed = discord.Embed(
             color=COR_DOURADA
         )
 
-        embed.set_author(name=f"Rolagem de {message.author.display_name}", iconurl=message.author.display_avatar.url)
+        embed.set_author(name=f"Rolagem de {message.author.display_name}", icon_url=message.author.display_avatar.url)
         embed.add_field(name="Resultado Total", value=f"`# {total_final} #`", inline=False)
         detalhes_str = "\n".join(lista_detalhes)
 
