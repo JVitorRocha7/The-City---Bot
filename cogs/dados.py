@@ -9,57 +9,122 @@ import re           # biblioteca para expressões regulares (detectar padrões d
 from discord import app_commands
 from discord.ext import commands
 
-class Dados(commands.cog): # cog é um módulo que agrupa comandos relacionados
+class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
     def __init__(self, bot):
-        self.bot = bot #guarda a referência do bot pra usar dentro da classe
+        self.bot = bot # guarda a referência do bot pra usar dentro da classe
 
+    def rolar_dados(self, qtd, lados):
+        """Rola os dados e retorna a lista de resultados formatada e a soma"""
+        resultados = [random.randint(1, lados) for _ in range(qtd)]
+        #destaca o 1 e o valor máximo em negrito
+        formatados = [f"**{d}**" if d == 1 or d == lados else str(d) for d in resultados]
+        return resultados, f"[{', '.join(formatados)}]"
 
-    @commands.Cog.listener() #decorator que registra o metodo como um listener de evento
-    async def on_message(self, message): #disparado toda vez que algué manda uma mensagem
-
-        #ignora mensagens do próprio bot para não entrar em loop infinito
+    @commands.Cog.listener()
+    async def on_message(self, message):
         if message.author.bot:
             return
 
-       # regex que detecta o padrão NdM, NdM+x ou NdM-x
-       # \d+ = um ou mais digitos
-       # d   = a letra "d" literal
-       # ([+-]\d+)? = bônus opcional (ex: +3 ou -2)
-       # fullmatch = a mensagem tem que ser esse padrão, nada mais
-       padrao = re.fullmatch(r"(\d+)d(d\d+)([+-]\d+)?", message.content.strip().lower())
 
-       # se a mensagem nao for uma rolagem de dado, ignora
-       if not padrao:
+        msg = message.content.strip().lower()
+
+        # Configs
+        COR_DOURADA = discord.color.from_str("#D4AF37")
+
+        # Repetição
+        if "#" in msg:
+            partes = msg.splt("#", 1)
+            if not partes[0].isdigit():
+                return
+
+            vezes = int(partes[0])
+            expressao_dado = partes[1].strip()
+
+            if expressao_dado.startswith('d'):
+                expressao_dado = "1"+ expressao_dado
+
+            if vezes > 10:
+                await message.reply("Limite atingido")
+                return
+
+            linhas_resposta = []
+            padrao_dados = r"(\d+)d(\d+)"
+
+            for i in range(1, vezes + 1):
+                match = re.fullmatch(padrao_dados, expressao_dado)
+                if match:
+                    qtd = int(match.group(1))
+                    lados = int(match.group(2))
+
+                    if qtd > 100 or lados > 100:
+                        return
+
+                    _, dados_str = self.rolar_dados(qtd, lados)
+                    linhas_resposta.append(f"` {i} `┠ {dados_str} ")
+
+            if linhas_resposta:
+                # embed de repetição
+                embed = discord.Embed(
+                    title="Rolagem",
+                    description=f"Resultados para **{msg}**"
+                    color=COR_DOURADA
+                )
+                embed.add_field(name="Resultados", value="\n".join(linhas_resposta), inline=False)
+                embed.set_footer(text=f"Solicitado por {message.author.display_name}, icon_url=message.author.display_avatar.url")
+
+                await message.reply(embed=embed)
             return
 
-       # extrai os grupos capturados pelo regex 
-       qtd = int(padrao.group(1)) # quantia de dados
-       lados = int(padrao.group(2)) # lados do dado
-       bonus = int(padrao.group(3)) if padrao.group(3) else 0 #bônus, 0 se não tiver
+        # Dados adjacentes
+        msg_limpa = msg.replace(" ", " ")
 
-       # limite para evitar spam ou travamento
-       if qtd > 100 or lados >1000:
-            await message.reply("Executor da Garra á caminho.")
+        if not re.fullmatch(r"[\dd+\-]+", msg_limpa) or "d" not in msg_limpa:
             return
 
-       # rola cada dado indivualmente e guarda os resultados numa lista
-       resultados = [random.randint(1, lados) for _ in range(qtd)]
+        msg_limpa = re.sub(r"(?<!\d)d", "1d", msg_limpa)
 
-       # soma todos os resultados e adiciona o bônus
-       total = sum(resultados) + bonus
+        padrao_rolagem = r"(\d+)d(\d+)"
+        rolagens = re.findall(padrao_rolagem, msg_limpa)
 
-       #formata a string do bÔnus
-       bonus_str = f" + {bonus}" if bonus > 0 else (f" - {abs(bonus)}" if bonus < 0 else "")
+        for qtd, lados in rolagens:
+            if int(qtd) > 100 or int(lados) > 1000:
+                return
 
-       # montar a mensagem
-       await message.reply(f"{resultados}{bonus_str} = **{total}**")
 
-# função obrigatória que o discord.py chama ao carregar a cog
+        lista_detalhes = []
+        expressao_matematica = msg_limpa
+
+        for qtd_str, lados_str in rolagens:
+            qtd, lados = int(qtd_str), int(lados_str)
+            resultados, dados_str = self.rolar_dados(qtd, lados)
+
+            soma_dados = sum(resultados)
+            lista_detalhes.append(f"**{qtd}d{lados}**: {dados_str}")
+
+            expressao_matematica = expressao_matematica.replace(f"{qtd}d{lados}", f"({soma_dados})", 1)
+
+        try:
+            total_final = eval(expressao_matematica)
+        except Execption:
+            return
+
+        embed = discord.Embed(
+            color=COR_DOURADA
+        )
+
+        embed.set_author(name=f"Rolagem de {message.author.display_name}", iconurl=message.author.display_avatar.url)
+        embed.add_field(name="Resultado Total", value=f"`# {total_final} #`", inline=False)
+        detalhes_str = "\n".join(lista_detalhes)
+
+        modificadores = re.findall(r"(?<!d)([+-]\d+)(?!d)", msg_limpa)
+        if modificadores:
+            detalhes_str += f"\n**Modificadores**: `{modificadores[0]}`"
+
+        embed.add_field(name="Detalhes da Expressão", value=detalhes_str, inline=False)
+
+        embed.set_footer(text=f"Formula: {msg}")
+
+        await message.reply(embed=embed)
+
 async def setup(bot):
     await bot.add_cog(Dados(bot))
-
-    
-
-    
-
-    
