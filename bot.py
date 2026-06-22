@@ -18,6 +18,7 @@ COGS = [
     "cogs.mod",
     "cogs.info",
     "cogs.utils",
+    "cogs.iniciativa",
 ]
 
 async def main():

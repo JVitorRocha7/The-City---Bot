@@ -52,6 +52,7 @@ class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
                     lados = int(match.group(2))
 
                     if qtd > 100 or lados > 100:
+                        await message.reply("https://i.ytimg.com/vi/OuHQQdVbhKc/maxresdefault.jpg")
                         return
 
                     _, dados_str = self.rolar_dados(qtd, lados)
@@ -83,6 +84,7 @@ class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
 
         for qtd, lados in rolagens:
             if int(qtd) > 100 or int(lados) > 1000:
+                await message.reply("https://i.ytimg.com/vi/OuHQQdVbhKc/maxresdefault.jpg")
                 return
 
 
@@ -103,24 +105,22 @@ class Dados(commands.Cog): # cog é um módulo que agrupa comandos relacionados
         except Exception:
             return
 
-        embed = discord.Embed(
-            color=COR_DOURADA
-        )
-
-        embed.set_author(name=f"Rolagem de {message.author.display_name}", icon_url=message.author.display_avatar.url)
-        embed = discord.Embed(
-            description=f"# {total_final}",
-            color=COR_DOURADA
-        )
-        detalhes_str = "\n".join(lista_detalhes)
-
         modificadores = re.findall(r"(?<!d)([+-]\d+)(?!\d*d)", msg_limpa)
         if modificadores:
             lista_detalhes.append(f"**Modificadores**: `{', '.join(modificadores)}`")
 
-        embed.add_field(name="Detalhes da Expressão", value=detalhes_str, inline=False)
+        embed = discord.Embed(
+            description=f"`{msg}`",
+            color=COR_DOURADA
+        )
 
-        embed.set_author(text=f"Formula: {msg}")
+        embed.set_author(
+            name=f"Rolagem de {message.author.display_name}",
+            icon_url=message.author.display_avatar.url
+        )
+
+        embed.add_field(name="Detalhes da Expressão", value="\n".join(lista_detalhes), inline=False)
+        embed.add_field(name="Total", value=f" `{total_final}`", inline=False)
 
         await message.reply(embed=embed)
 
