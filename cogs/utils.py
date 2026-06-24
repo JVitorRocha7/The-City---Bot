@@ -20,6 +20,10 @@ class Utils(commands.Cog):
 
         msg = message.content.strip()
 
+        if msg.lower() == "distort yourself":
+            await message.reply("https://tenor.com/view/carmen-project-moon-distort-lobotomy-corporation-gif-3698852749371056132")
+            return    
+            
         if msg.lower() == "tcnanotech":
             await message.reply("https://tenor.com/view/i%CC%87ron-man-i%CC%87nfinity-war-nano-suit-gif-18418443")
             return
@@ -28,6 +32,9 @@ class Utils(commands.Cog):
             await message.reply("https://giphy.com/gifs/areon-areonsama-areonofficial-NbXNibaFRHuAfF9rtg")
             return
 
+        if re.match(r"^tc[a-zA-Z]", msg.lower()):
+            return
+        
         # verifica se começa com "tc"
         if not msg.lower().startswith("tc"):
             return
