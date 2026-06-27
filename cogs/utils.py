@@ -1,7 +1,10 @@
 import discord
+import spotipy
+import os
 import random
 import re
 from discord.ext import commands
+from spotipy.oauth2 import SpotifyClientCredentials
 
 class Utils(commands.Cog):
     def __init__(self, bot):
@@ -30,6 +33,32 @@ class Utils(commands.Cog):
 
         if msg.lower() == "tcclary":
             await message.reply("https://giphy.com/gifs/areon-areonsama-areonofficial-NbXNibaFRHuAfF9rtg")
+            return
+
+        if msg.lower().startswith("tcspotify"):
+            query = msg[9:].strip().strip('"') # pegar o nome pós tc
+            if not query:
+                await message.reply("Escreva o nome de uma música. Ex: `tcspotify Drag Path`")
+                return
+                    
+            sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+                client_id=os.getenv("SPOTIFY_CLIENT_ID"),
+                client_secret=os.getenv("SPOTIFY_CLIENT_SECRET")
+            ))
+        
+            resultados = sp.search(q=query, limit=1, type="track")
+            tracks = resultados["tracks"]["items"]
+        
+            if not tracks:
+                await message.reply("Música não encontrada.")
+                return
+        
+            track = tracks[0]
+            nome = track["name"]
+            artista = track["artists"][0]["name"]
+            link = track["external_urls"]["spotify"]
+        
+            await message.reply(f"**{nome}** - {artista}\n[Abrir no Spotify]({link})")
             return
 
         if re.match(r"^tc[a-zA-Z]", msg.lower()):
