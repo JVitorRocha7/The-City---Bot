@@ -19,6 +19,7 @@ COGS = [
     "cogs.info",
     "cogs.utils",
     "cogs.iniciativa",
+    "cogs.music"
 ]
 
 async def main():
