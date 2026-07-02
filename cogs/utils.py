@@ -61,6 +61,14 @@ class Utils(commands.Cog):
             await message.reply(f"**{nome}** - {artista}\n[Abrir no Spotify]({link})")
             return
 
+        # comandos específicos que começam com tc + letra mas não são calculadora
+        COMANDOS_TC = ["tcnanotech", "tcclary", "tciniciativa", "tcplay", "tcstop", 
+               "tcpause", "tcresume", "tcleave", "tcqueue", "tcremove", 
+               "tcskip", "tcmix", "tcloop", "tcspotify"]
+
+        if any(msg.lower().startswith(cmd) for cmd in COMANDOS_TC):
+            return
+
         if re.match(r"^tc[a-zA-Z]", msg.lower()):
             return
         
