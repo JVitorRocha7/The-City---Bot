@@ -128,10 +128,6 @@ class Dados(commands.Cog):
             description=f"**{total_final}** ← `{msg}`",
             color=COR_DOURADA
         )
-        embed_simples.set_author(
-            name=f"Rolagem de {message.author.display_name}",
-            icon_url=message.author.display_avatar.url
-        )
 
         # --- EMBED DETALHADO (mostrado ao expandir) ---
         # contém todos os detalhes da rolagem
