@@ -11,18 +11,13 @@ class BotaoExpandir(discord.ui.View):
 
     def __init__(self, embed_detalhes: discord.Embed):
         super().__init__(timeout=120)  # botão expira após 2 minutos
-        # guarda o embed completo pra mostrar quando clicar
         self.embed_detalhes = embed_detalhes
 
     @discord.ui.button(label="Expandir", style=discord.ButtonStyle.secondary, emoji="🎲")
     async def expandir(self, interaction: discord.Interaction, button: discord.ui.Button):
         """Ao clicar, edita a mensagem mostrando os detalhes completos"""
-        
-        # desativa o botão pra não poder clicar duas vezes
         button.disabled = True
         button.label = "Expandido"
-        
-        # edita a mensagem original com o embed de detalhes
         await interaction.response.edit_message(embed=self.embed_detalhes, view=self)
 
 
@@ -31,7 +26,7 @@ class Dados(commands.Cog):
         self.bot = bot
 
     def rolar_dados(self, qtd, lados):
-        """Rola os dados e retorna a lista de resultados formatada e a soma"""
+        """Rola os dados e retorna a lista de resultados e a string formatada"""
         resultados = [random.randint(1, lados) for _ in range(qtd)]
         # destaca 1 e valor máximo em negrito
         formatados = [f"**{d}**" if d == 1 or d == lados else str(d) for d in resultados]
@@ -103,14 +98,21 @@ class Dados(commands.Cog):
                 await message.reply("https://i.ytimg.com/vi/OuHQQdVbhKc/maxresdefault.jpg")
                 return
 
-        lista_detalhes = []
+        lista_detalhes = []  # detalhes completos pro embed expandido
+        lista_simples = []   # resumo por dado pro embed simples
         expressao_matematica = msg_limpa
 
         for qtd_str, lados_str in rolagens:
             qtd, lados = int(qtd_str), int(lados_str)
             resultados, dados_str = self.rolar_dados(qtd, lados)
             soma_dados = sum(resultados)
+
+            # detalhe completo: "2d6: [3, 4]"
             lista_detalhes.append(f"**{qtd}d{lados}**: {dados_str}")
+
+            # resumo simples: "2d6[3, 4]"
+            lista_simples.append(f"{qtd}d{lados}{resultados}")
+
             expressao_matematica = expressao_matematica.replace(f"{qtd}d{lados}", f"({soma_dados})", 1)
 
         try:
@@ -122,15 +124,15 @@ class Dados(commands.Cog):
         if modificadores:
             lista_detalhes.append(f"**Modificadores**: `{', '.join(modificadores)}`")
 
-        # --- EMBED SIMPLES (mostrado primeiro) ---
-        # só mostra o total e a expressão, igual ao Mini Kraken
+        # --- EMBED SIMPLES ---
+        # só mostra o total e os resultados por dado, sem "Rolagem de"
         embed_simples = discord.Embed(
-            description=f"**{total_final}** ← `{msg}`",
+            description=f"**{total_final}** ← {' + '.join(lista_simples)}",
             color=COR_DOURADA
         )
 
-        # --- EMBED DETALHADO (mostrado ao expandir) ---
-        # contém todos os detalhes da rolagem
+        # --- EMBED DETALHADO ---
+        # mostrado ao clicar em Expandir, contém todos os detalhes
         embed_detalhes = discord.Embed(
             description=f"`{msg}`",
             color=COR_DOURADA
@@ -143,7 +145,6 @@ class Dados(commands.Cog):
         embed_detalhes.add_field(name="Total", value=f"`{total_final}`", inline=False)
 
         # manda o embed simples com o botão Expandir
-        # passa o embed_detalhes pro botão pra ele saber o que mostrar ao clicar
         await message.reply(embed=embed_simples, view=BotaoExpandir(embed_detalhes))
 
 
