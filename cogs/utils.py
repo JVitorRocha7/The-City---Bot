@@ -34,6 +34,10 @@ class Utils(commands.Cog):
         if msg.lower() == "tcclary":
             await message.reply("https://giphy.com/gifs/areon-areonsama-areonofficial-NbXNibaFRHuAfF9rtg")
             return
+        
+        if "farme aura neles" in msg.lower() and self.bot.user.mentioned_in(message):
+            await message.reply("https://klipy.com/gifs/iron-man-mark-46")
+            return
 
         if msg.lower().startswith("tcspotify"):
             query = msg[9:].strip().strip('"') # pegar o nome pós tc
