@@ -34,6 +34,10 @@ class Utils(commands.Cog):
         if msg.lower() == "matar o peccyn":
             await message.reply("https://klipy.com/gifs/tony-stark-jarvis-1")
             return
+
+        if msg.lower() == "perdi no clash":
+            await message.reply("https://klipy.com/gifs/fanum-throwing-food-2")
+            return
         
         if "farme aura neles" in msg.lower() and self.bot.user.mentioned_in(message):
             await message.reply("https://klipy.com/gifs/iron-man-mark-46")
