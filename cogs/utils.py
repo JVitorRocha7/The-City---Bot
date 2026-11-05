@@ -38,9 +38,17 @@ class Utils(commands.Cog):
         if msg.lower() == "perdi no clash":
             await message.reply("https://klipy.com/gifs/fanum-throwing-food-2")
             return
+
+        if msg.lower() == "angela":
+            await message.reply("https://klipy.com/gifs/homelander-the-boys-76")
+            return
         
         if "farme aura neles" in msg.lower() and self.bot.user.mentioned_in(message):
             await message.reply("https://klipy.com/gifs/iron-man-mark-46")
+            return
+
+        if re.search(r"\bmatar\b", msg.lower()):
+            await message.reply("https://klipy.com/gifs/homelander-the-boys-76")
             return
 
         if msg.lower().startswith("tcspotify"):
