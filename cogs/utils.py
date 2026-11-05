@@ -51,6 +51,10 @@ class Utils(commands.Cog):
             await message.reply("https://klipy.com/gifs/homelander-the-boys-76")
             return
 
+        if "pega" in msg.lower() and self.bot.user.mentioned_in(message):
+            await message.reply("https://klipy.com/gifs/goku-prowler-3")
+            return
+
         if msg.lower().startswith("tcspotify"):
             query = msg[9:].strip().strip('"') # pegar o nome pós tc
             if not query:
