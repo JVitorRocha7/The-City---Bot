@@ -31,8 +31,8 @@ class Utils(commands.Cog):
             await message.reply("https://tenor.com/view/i%CC%87ron-man-i%CC%87nfinity-war-nano-suit-gif-18418443")
             return
 
-        if msg.lower() == "tcclary":
-            await message.reply("https://giphy.com/gifs/areon-areonsama-areonofficial-NbXNibaFRHuAfF9rtg")
+        if msg.lower() == "matar o peccyn":
+            await message.reply("https://klipy.com/gifs/tony-stark-jarvis-1")
             return
         
         if "farme aura neles" in msg.lower() and self.bot.user.mentioned_in(message):
